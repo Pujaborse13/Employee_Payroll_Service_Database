@@ -1,7 +1,6 @@
 package com.EmployePayrollServiceDatabase;
-
-
 import java.util.Date;
+
 
 class EmployeePayroll {
     int id;
@@ -25,8 +24,6 @@ class EmployeePayroll {
                 ", startDate=" + startDate +
                 '}';
     }
-
-
 
     public double getSalary() {
         return salary;
