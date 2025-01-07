@@ -25,6 +25,12 @@ class EmployeePayroll {
                 ", startDate=" + startDate +
                 '}';
     }
+
+
+
+    public double getSalary() {
+        return salary;
+    }
 }
 
 

@@ -17,6 +17,14 @@ public class EmployeePayrollService {
             service.updateEmployeeSalary(employeeName, updatedSalary);
             EmployeePayroll employeePayroll = service.getEmployeePayrollByName(employeeName);
 
+            if(employeePayroll.getSalary() == updatedSalary)
+            {
+                System.out.println("Updated employee payroll object is in syn with the database");
+            }
+            else {
+                System.out.println("Discrepancy between Employee Payroll Object and Database.");
+            }
+
             System.out.println("Updated Employee Data: " + employeePayroll);
         } catch (CustomDatabaseException e) {
             System.err.println(e.getMessage());
