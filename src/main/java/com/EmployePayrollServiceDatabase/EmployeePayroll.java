@@ -28,3 +28,9 @@ class EmployeePayroll {
 }
 
 
+class CustomDatabaseException extends Exception {
+    public CustomDatabaseException(String message, Throwable cause) {
+        super(message, cause);
+    }
+}
+
