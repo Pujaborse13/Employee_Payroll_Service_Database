@@ -1,31 +1,32 @@
 package com.EmployePayrollServiceDatabase;
 
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 public class EmployeePayrollService {
 
     public static void main(String[] args) {
 
-
         try {
             PayrollService payrollService = PayrollService.getInstance();
-            String employeeName = "Terissa";
-            EmployeePayroll employeePayroll = payrollService.getEmployeePayrollByName(employeeName);
 
-            if (employeePayroll != null) {
-                System.out.println("Employee Payroll Data Retrieved: " + employeePayroll);
-            } else {
-                System.out.println("Employee not found with name: " + employeeName);
-            }
+            String startDate = "2023-01-01";
+            String endDate = "2023-12-31";
+
+
+            List<EmployeePayroll> employeeInRange = payrollService.getEmployeePayrollByJoinDateRange(startDate,endDate);
+
+            System.out.println("Employees who joined between"+startDate+ "and"+endDate);
+            employeeInRange.forEach(System.out::println);
+
         } catch (CustomDatabaseException e) {
             System.err.println(e.getMessage());
         }
-
-
     }
-
 }
+
 class PayrollService {
 
     private static final String DB_URL = "jdbc:mysql://localhost:3306/payroll_service";
@@ -40,7 +41,6 @@ class PayrollService {
         try {
             connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
             prepareStatements();
-
 
         } catch (SQLException e){
             throw new CustomDatabaseException("Unable to Establish database connection", e);
@@ -62,26 +62,29 @@ class PayrollService {
 
 
     private void prepareStatements() throws SQLException {
-        String selectByNameSQL = "SELECT id, name, salary, start_date FROM employee_payroll WHERE name = ?";
+        String selectByNameSQL = "SELECT id, name, salary, start_date FROM employee_payroll WHERE start_date BETWEEN ? AND ?";
         selectByNamePreparedStatement = connection.prepareStatement(selectByNameSQL);
     }
-    public EmployeePayroll getEmployeePayrollByName(String name) throws CustomDatabaseException {
+    public List<EmployeePayroll> getEmployeePayrollByJoinDateRange(String startDate, String endDate) throws CustomDatabaseException {
+        List<EmployeePayroll> employeeList = new ArrayList<>();
+
         try {
-            selectByNamePreparedStatement.setString(1, name);
+            selectByNamePreparedStatement.setString(1, startDate);
+            selectByNamePreparedStatement.setString(2, endDate);
+
 
             try (ResultSet resultSet = selectByNamePreparedStatement.executeQuery()) {
-                if (resultSet.next()) {
-                    return mapToEmployeePayroll(resultSet);
-                } else {
-                    return null; // No employee found
+                while(resultSet.next()) {
+                    employeeList.add(mapToEmployeePayroll(resultSet));
+
                 }
             }
         } catch (SQLException e) {
             throw new CustomDatabaseException("Error retrieving employee payroll data.", e);
         }
+        return employeeList;
     }
-
-    private EmployeePayroll mapToEmployeePayroll(ResultSet resultSet) throws SQLException {
+        private EmployeePayroll mapToEmployeePayroll(ResultSet resultSet) throws SQLException {
         int id = resultSet.getInt("id");
         String name = resultSet.getString("name");
         double salary = resultSet.getDouble("salary");
